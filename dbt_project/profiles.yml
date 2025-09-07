@@ -1,0 +1,7 @@
+dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../sources/gmd/gmd.duckdb   # relative path to your DuckDB file
+      schema: main                      # schema inside DuckDB
