@@ -2,7 +2,7 @@
   "name": "my-evidence-project",
   "version": "0.0.1",
   "scripts": {
-    "build": "evidence build",
+    "build": "EVIDENCE_BUILD_DIR=./build/global-macro-database evidence build",
     "build:strict": "evidence build:strict",
     "dev": "evidence dev --open /",
     "dev:codespaces": "evidence dev --host 0.0.0.0 --open /",
