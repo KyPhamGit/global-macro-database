@@ -11,6 +11,7 @@ This dashboard analyzes Poland Government Decisions.
 
 ```sql data_pol_deu_gbr
 select
+    countryname,
     lower(iso3) as country_code,
     year,
     exports_GDP,
@@ -55,7 +56,7 @@ where year = 2025
     data={data_pol_deu_gbr}
     x=year
     y=CA_GDP
-    series = country_code
+    series = countryname
     title="Curent Account"
     yAxisTitle="%"
     xAxisTitle="Year"

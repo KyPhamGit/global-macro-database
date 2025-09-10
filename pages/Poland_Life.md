@@ -11,6 +11,7 @@ This dashboard analyzes Polands QoL metrics in Comparison to Germany (and UK for
 
 ```sql data_pol_deu_gbr
 select
+    countryname,
     lower(iso3) as country_code,
     year,
     pop as population,
@@ -35,7 +36,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=real_gdp_per_capita
-    series = country_code
+    series = countryname
     title="GDP Per Capita in USD"
     yAxisTitle="GDP per Capita (USD)"
     xAxisTitle="Year"
@@ -46,7 +47,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=infl
-    series = country_code
+    series = countryname
     title="Inflation"
     yAxisTitle="Rate in %"
     xAxisTitle="Year"
@@ -56,7 +57,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=cpi
-    series = country_code
+    series = countryname
     title="Consumer Price Index"
     yAxisTitle="Index"
     xAxisTitle="Year"
@@ -66,7 +67,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=RCR
-    series = country_code
+    series = countryname
     title="Real Consumption Ratio"
     yAxisTitle="Ratio"
     xAxisTitle="Year"
@@ -75,7 +76,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=unemp
-    series = country_code
+    series = countryname
     title="Unemployement Rate"
     yAxisTitle="Rate in %"
     xAxisTitle="Year"
@@ -85,7 +86,7 @@ order by year
     data={data_pol_deu_gbr}
     x=year
     y=hpi_imp
-    series = country_code
+    series = countryname
     title="House Price Index"
     yAxisTitle="Index"
     xAxisTitle="Year"

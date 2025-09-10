@@ -112,7 +112,12 @@ main_tbl as (
     select
         year,
         poland_perc,
-        germany_perc
+        germany_perc,
+        case 
+            when germany_perc < 0
+            then (poland_perc/germany_perc)*-1
+            else (poland_perc/germany_perc)
+        end as pg_perc
     from main_tbl 
     order by year desc
 ```
@@ -124,4 +129,5 @@ main_tbl as (
     <Column id=year title="Year"/>
     <Column id=poland_perc title="Poland's GDP Growth in %" fmt="#,##0.0%" contentType=delta/>
     <Column id=germany_perc title="Germany's GDP Growth in %" fmt="#,##0.0%" contentType=delta/>
+    <Column id=pg_perc title="Polands Multiplier" fmt="#,##0.0x" contentType=delta/>
 </DataTable>
