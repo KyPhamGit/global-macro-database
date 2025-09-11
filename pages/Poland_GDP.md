@@ -1,44 +1,33 @@
 ---
 title: Is Poland Really Europes Next Power House?
 description: Analysis of Poland GDP metrics to see if they are really the up and coming EU leader.
+queries:
+  - eu_gdp_data: eur_gdp_by_year.sql
+  - distinct_countries: distinct_countries.sql
 ---
-
-
-# EU GDP Trends Since 2000
 <LastRefreshed prefix="Data last updated"/>
 
-This dashboard analyzes European GDP data from the Global Macro Database, showing aggregate GDP trends across all EU since 2000.
 
-```sql global_gdp_by_year
 
-with europe as(
-    select *
-    from gmd
-    where lower(iso3) in (
-        'aut','bel','bgr','cyp','cze','deu',
-        'dnk','esp','est','fin','fra','fra',
-        'grc','hrv','hun','irl','ita','ita',
-        'ltu','lux','lva','mlt','nld','pol',
-        'prt','rou','svk','svn','swe'
-        )
-)
+# EU GDP Trends
+This dashboard analyzes European GDP data from the Global Macro Database, showing aggregate GDP trends across all EU from a specific year of choice.
 
-select
-    countryname as countries,
-    year,
-    sum(ngdp_usd) as total_gdp_usd_billions
-from europe 
-where year >= 2000 
-    and ngdp_usd is not null 
-    and ngdp_usd > 0
-group by 1,2
-order by year
-```
 
-## Total EU GDP in USD (Trillions) Since 2000
+## Total Countries GDP in USD (Trillions)
+
+<Slider
+    data={eu_gdp_data}
+    range=year
+    title="Year Range" 
+    name=year_slider
+    size=full
+    fmt='yyyy'
+    min=1960
+    showMaxMin=false
+/>
 
 <LineChart 
-    data={global_gdp_by_year}
+    data={eu_gdp_data.where(`year >= ${inputs.year_slider} `)}
     x=year
     y=total_gdp_usd_billions
     series=countries
@@ -53,23 +42,30 @@ select
     year,
     countries,
     total_gdp_usd_billions
-from ${global_gdp_by_year}
+from ${eu_gdp_data}
 where year = 2025
 order by total_gdp_usd_billions desc
-limit 10
+limit ${inputs.limit_button}
 ```
 
-## Top 10 Counties in EU by Total GDP
+
+
+## Top Ranking Countries in EU by Total GDP
+
+<ButtonGroup name=limit_button>
+    <ButtonGroupItem valueLabel="Top 5" value="5" />
+    <ButtonGroupItem valueLabel="Top 10" value="10" default />
+    <ButtonGroupItem valueLabel="Top 20" value="20" />
+</ButtonGroup>
 
 <DataTable 
     data={total_gdp_data}
-    rows=10
+    rows=20
 >
     <Column id=year title="Year"/>
     <Column id=countries title="Countries"/>
     <Column id=total_gdp_usd_billions title="Total GDP Nominal USD (Billions)" fmt="#,##0,"/>
 </DataTable>
-
 
 
 ```sql pol_gdp_comparison
@@ -92,7 +88,6 @@ country_data as (
         (nominal_gdp - prev_year_gdp) / prev_year_gdp as perc_growth
     from gmd 
     where year <= 2025 and year >= 2004
-        and country_code in ('pol','deu')
     order by year desc
 ),
 
@@ -100,34 +95,43 @@ main_tbl as (
     select
         base_year.year as year,
         poland.perc_growth as poland_perc,
-        germany.perc_growth as germany_perc
+        other.perc_growth as other_perc
     from base_year
     left join country_data poland
         on base_year.year = poland.year
         and poland.country_code = 'pol'
-    left join country_data germany
-        on base_year.year = germany.year
-        and germany.country_code = 'deu'
+    left join country_data other
+        on base_year.year = other.year
+        and other.country = '${inputs.select_countries.value}'
 )
     select
         year,
         poland_perc,
-        germany_perc,
+        other_perc,
         case 
-            when germany_perc < 0
-            then (poland_perc/germany_perc)*-1
-            else (poland_perc/germany_perc)
+            when other_perc < 0
+            then (poland_perc/other_perc)*-1
+            else (poland_perc/other_perc)
         end as pg_perc
     from main_tbl 
     order by year desc
 ```
-## Rate of Poland Vs Germany Recent GDP Growth to Their Previous Year
+## Rate of Poland Vs Another Country's GDP Growth
+
+<Dropdown
+    title="Select a Country" 
+    name=select_countries
+    data={distinct_countries}
+    value=countryname
+    defaultValue="Germany"
+/>
+
 <DataTable 
     data={pol_gdp_comparison}
     rows=21
 >
     <Column id=year title="Year"/>
     <Column id=poland_perc title="Poland's GDP Growth in %" fmt="#,##0.0%" contentType=delta/>
-    <Column id=germany_perc title="Germany's GDP Growth in %" fmt="#,##0.0%" contentType=delta/>
+    <Column id=other_perc title="Selected Country's GDP Growth in %" fmt="#,##0.0%" contentType=delta/>
     <Column id=pg_perc title="Polands Multiplier" fmt="#,##0.0x" contentType=delta/>
 </DataTable>

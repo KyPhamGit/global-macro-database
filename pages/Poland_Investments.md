@@ -1,50 +1,30 @@
 ---
 title: What Drives This Kind of Growth?
 description: Analysis of Polands Investments and Financial Descisions.
+queries:
+  - eu_20yrs_data: eur_20yrs_data.sql
+  - distinct_countries: distinct_countries.sql
 ---
-
-
-#
 <LastRefreshed prefix="Data last updated"/>
 
-This dashboard analyzes Poland Government Decisions.
 
-```sql data_pol_deu_gbr
-select
-    countryname,
-    lower(iso3) as country_code,
-    year,
-    exports_GDP,
-    imports_GDP,
-    CA_GDP,
-    inv_GDP,
-    finv_GDP,
-    govdebt_GDP,
-    govdef_GDP,
-    govexp_GDP,
-    govrev_GDP,
-    govtax_GDP
-from gmd 
-where year >= 2004 and year <=2025
-    and country_code in ('pol', 'deu', 'gbr')
-order by year
-```
+# This page analyzes Poland Government Decisions.
 
 ## Exports Comparison
 
-```sql imp_and_exp
-select
-    countryname,
-    lower(iso3) as country_code,
-    exports_GDP,
-    imports_GDP
-from gmd 
-where year = 2025
-    and country_code in ('pol', 'deu', 'gbr')
-```
+<Dropdown
+    title="Select a Country" 
+    name=select_countries
+    data={distinct_countries}
+    value=countryname
+    defaultValue="Germany"
+/>
 
 <BarChart
-  data={imp_and_exp}
+  data={eu_20yrs_data.where(`
+    year = 2025
+    and country_code in ('pol', '${inputs.select_countries}')
+    `)}
   x=countryname
   y:[exports_GDP, imports_GDP]
   title="Percentage of GDP from Imports and Exports"
@@ -53,7 +33,7 @@ where year = 2025
 />
 
 <LineChart 
-    data={data_pol_deu_gbr}
+    data={eu_20yrs_data}
     x=year
     y=CA_GDP
     series = countryname
@@ -80,11 +60,11 @@ group by 1,2
     y:[inv_GDP, finv_GDP]
     title="Percentage of GDP Used for Investments"
     yAxisTitle="% of GDP"
-    xAxisTitle="Year"
+    xAxisTitle="Country"
 />
 
 
-```sql sum_data_pol_deu_gbr
+```sql sum_eu_20yrs_data
 select
     countryname,
     lower(iso3) as country_code,
@@ -99,7 +79,7 @@ group by 1,2
 ```
 
 <BarChart
-  data={sum_data_pol_deu_gbr}
+  data={sum_eu_20yrs_data}
   x=countryname
   y:[Gov_Debt, Gov_Defic, Gov_Exp, Gov_Rev]
   title="Government Financial Metrics by Country"
